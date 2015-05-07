@@ -1,0 +1,82 @@
+<html>
+  <style>
+* {
+  margin: 0;
+  padding: 0;
+}
+html, body, svg {
+  width: 100%;  height:100%;
+}
+path {
+  stroke: #000;
+}
+  </style>
+
+  <svg id="svg"><path id="path" /></svg>
+
+  <script>
+// http://www.paulirish.com/2011/requestanimationframe-for-smart-animating/
+window.requestAnimFrame = (function(){
+  return  window.requestAnimationFrame ||
+    window.webkitRequestAnimationFrame ||
+    window.mozRequestAnimationFrame    ||
+    function( callback ){
+      window.setTimeout(callback, 1000 / 60);
+    };
+})();
+  </script>
+
+  <script>
+var svg = document.getElementById('svg');
+var path = document.getElementById('path');
+
+var width, height;
+var d = [];
+var n = 300;
+var mouseY = 0;
+var bar = 0;
+var prevTime = Date.now();
+
+function redraw(dt) {
+  bar = bar + (mouseY - bar) * (dt / 200);
+
+  d[0] = 'M0,' + bar;
+  d[n-1] = 'L' + width + ',' + bar;
+
+  path.setAttribute('d', d.join(' '));
+}
+
+function resize() {
+  width = document.body.offsetWidth;
+  height = document.body.offsetHeight;
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+
+  d = [];
+  for (var i = 0; i < n; i++) {
+    d.push('L' + (i / n * width) + ',' + mouseY);
+  }
+  redraw(0);
+}
+resize();
+window.onresize = resize;
+
+document.onmousemove = function (e) {
+  mouseY = e.pageY;
+};
+
+function anim () {
+  var now = Date.now();
+  var dt = now - prevTime;
+  prevTime = now;
+
+  for (var i = 0; i < dt; i++) {
+    var j = Math.floor(Math.random() * n);
+    d[j] = 'L' + (j / n * width) + ',' + mouseY;
+  }
+  redraw(dt);
+  requestAnimationFrame(anim);
+}
+anim();
+
+  </script>
+</html>
